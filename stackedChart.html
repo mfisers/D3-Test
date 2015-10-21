@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font: 12px sans-serif;
+}
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+#chart {
+    width: 60%;
+    float: left;
+    margin: 0 auto;
+}
+#chart h3 {
+    text-align: center;
+    background-color: lightgray;
+    padding: 15px 0;
+}
+#chart2 {
+    float:left;
+    width: 60%;
+    height: 500px;
+    margin-top: 22px;
+}  
+#chart2 h3 {
+    text-align: center;
+    background-color: lightgray;
+    padding: 15px 0px;
+}
+.status text {
+  text-anchor: end;
+}
+div.tooltip {	
+    position: absolute;			
+    text-align: center;			
+    width: 80px;					
+    height: 20px;					
+    padding: 2px;				
+    font: 14px sans-serif;		
+    background: lightsteelblue;	
+    border: 0px;		
+    border-radius: 8px;			
+    pointer-events: "none";			
+}    
+.components {
+    float: right;
+    width: 39%;
+    height: 600px;
+    margin: 0 auto;
+}
+.components h3 {
+    padding: 15px 0px;
+    text-align: center;    
+    background-color: lightgrey;
+}
+.components li {
+    margin-top: 5px;
+    font-size: 14px;   
+}
+.json {
+    width: 50%;
+    background-color: blanchedalmond;
+    font-size: 14px;
+    padding: 20px;
+    margin-left: 20%;
+} 
+</style>
+<body>
+    <div id="chart">
+        <h3>D3 Example</h3>
+    </div>
+    <div class="components">
+        <h3>Components</h3>
+        <ul>
+            <li><i><strong>d3.tsv</strong></i> - load and parse data</li>
+            <li><i><strong>d3.time.format</strong></i> - parse dates</li>
+            <li><i><strong>d3.format</strong></i> - format percentages</li>
+            <li><i><strong>d3.time.scale</strong></i> - x-position encoding</li>
+            <li><i><strong>d3.scale.linear</strong></i> - y-position encoding</li>
+            <li><i><strong>d3.scale.category10</strong></i> - color encoding</li>
+            <li><i><strong>d3.extent and d3.max</strong></i> - compute domains</li>
+            <li><i><strong>d3.layout.stack</strong></i> - compute stacked y-positions</li>
+            <li><i><strong>d3.keys</strong></i> - compute column names</li>
+            <li><i><strong>d3.svg.axis</strong></i> - display axes</li>
+            <li><i><strong>d3.svg.area</strong></i> - display area shape</li>
+            
+        </ul>
+    </div>
+    <div id="chart2">
+        <h3>NVD3 Example</h3>
+        <svg></svg>
+    </div>
+    
+    <div class="components">
+        <h3>Components for NVD3</h3>
+        <ul>
+            <li><i><strong>d3.json</strong></i> - load and parse data</li>
+            <li><i><strong>nv.models.stackedAreaChart</strong></i> - display stacked area chart</li>
+            <li><i><strong>d3.scale.category10</strong></i> - color encoding</li>
+        </ul>
+        <p class="json"><strong>JSON data fomat using with NVD3</strong><br/><br/><br/>
+            [ <br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;{ <br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;key: "Series name", <br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;color: "CSS color (optional)", <br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;values: [ <br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{x: 0, y: 10}, <br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{x: 1, y: 20}, <br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{x: 2, y: 30} <br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.... <br/>
+            ] <br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;}, <br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;{ <br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;key: ""Series name" <br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;... <br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;} <br/>
+            ] <br/>
+        </p>
+        
+    </div>
+    <title>Stacked Area Chart</title>
+    <link href="../build/nv.d3.css" rel="stylesheet" type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.2/d3.min.js" charset="utf-8"></script>
+    <script src="../build/nv.d3.js"></script>
+<script>
+
+var margin = {top: 20, right: 20, bottom: 30, left: 50},
+    width = 900 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var parseDate = d3.time.format("%y-%b-%d").parse,
+    formatPercent = d3.format(".0%");
+
+var x = d3.time.scale()
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .range([height, 0]);
+
+var color = d3.scale.category20();
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickFormat(formatPercent);
+
+var area = d3.svg.area()
+    .x(function(d) { return x(d.date); })
+    .y0(function(d) { return y(d.y0); })
+    .y1(function(d) { return y(d.y0 + d.y); });
+
+var stack = d3.layout.stack()
+    .values(function(d) { return d.values; });
+
+var svg = d3.select("#chart").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    
+d3.tsv("stackedChartData.tsv", function(error, data) {
+  if (error) throw error;
+
+  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+
+  data.forEach(function(d) {
+    d.date = parseDate(d.date);
+  });
+
+  var statusCheck = stack(color.domain().map(function(name) {
+    return {
+      name: name,
+      values: data.map(function(d) {
+        return {date: d.date, y: d[name] / 100};
+      })
+    };
+  }));
+
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+
+  var status = svg.selectAll(".status")
+      .data(statusCheck)
+    .enter().append("g")
+      .attr("class", "status");
+
+  status.append("path")
+      .attr("class", "area")
+      .attr("d", function(d) { return area(d.values); })
+      .style("fill", function(d) { return color(d.name); });
+    
+  status.append("text")
+      .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.y0 + d.value.y / 2) + ")"; })
+      .attr("x", -20)
+      .text(function(d) { return d.name; });
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis);
+});
+    
+d3.json('data.json', function(data) {
+  nv.addGraph(function() {
+  var chart = nv.models.stackedAreaChart()
+                .x(function(d) { return d[0] })
+                .y(function(d) { return d[1] })
+                .clipEdge(true)
+                .color(d3.scale.category10().range())
+                .useInteractiveGuideline(true)
+                ;
+  chart.xAxis
+      .showMaxMin(false)
+      .tickFormat(function(d) { return d3.time.format('%Y')(new Date(d)) });
+
+  chart.yAxis
+        .showMaxMin(false)
+      .tickFormat(d3.format(',.2f'));
+
+  d3.select('#chart2 svg')
+    .datum(data)
+      .transition().duration(500).call(chart);
+
+  nv.utils.windowResize(chart.update);
+
+  return chart;
+});
+});
+
+</script>
