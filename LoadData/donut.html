@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Donut Chart</title>
+</head>
+<body>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+    <div id="chart">
+        <h3>Donut chart</h3>
+        <form>
+            <label><input type="radio" name="dataset" value="count" checked> Count</label>
+            <label><input type="radio" name="dataset" value="count1"> Count1</label>
+        </form>
+    </div> 
+    <script>
+        function donutChart(width, height) {
+            
+            var width = width,
+                height = height,
+                radius = Math.min(width,height)/2;
+            
+            var color = d3.scale.category10();              
+
+            // create function to draw the arcs of the pie slices.
+            var arc = d3.svg.arc()
+                .outerRadius(radius)
+                .innerRadius(radius - 70);
+            
+            // create a function to compute the pie slice angles.
+            var pie = d3.layout.pie()
+                .sort(null)
+                .value(function(d) {
+                    return d.count;
+                });
+            
+            // create svg for pie chart. 
+            var svg = d3.select('#chart')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .append('g')
+                .attr('transform', 'translate(' + (width / 2) + 
+                ',' + (height / 2) + ')');
+        
+            
+            d3.csv('data.csv', type, function(error, data) {
+                // Draw the pie slices.
+                var path = svg.datum(data).selectAll('path')
+                    .data(pie)
+                    .enter()
+                    .append('path')
+                    .attr('d', arc)
+                    .attr('fill', function(d, i) {
+                        return color(d.data.label);
+                    })
+                    .each(function(d) { this._current = d; }); // store the initial angles
+                
+                // On input click, change data values
+                d3.selectAll('input')
+                    .on('change', change);
+                
+                var timeout = setTimeout(function() {
+                    d3.select('input[value=\'count1\']').property('checked', true).each(change);
+//                      d3.select('[value=\'count1\']').each(change);
+                }, 2000);
+                
+                  
+                function change() {
+                    var value = this.value;
+                    clearTimeout(timeout);
+                    pie.value(function(d) { return d[value]; }); // change the value function
+                    path = path.data(pie); // compute the new angles  
+                    path.transition().duration(750).attrTween('d', arcTween); // does smooth transition
+                    
+                    var l = legend.select("tbody").selectAll("tr").data(pie(data));
+
+                    // update the data to count1 row.
+                    l.selectAll('.legendData').text(function(d){ return d.data.count1;});
+   
+
+                }
+                
+                 // create table for legend.
+                var legend = d3.select('#chart').append('table').attr('class', 'legend');
+                
+                // create one row per segment.
+                var tr = legend.append('tbody').selectAll('tr').data(pie(data)).enter().append('tr');
+                
+                //create the first column for each segment.
+                tr.append('td').append('svg').attr('width', '16').attr('height', '16').append('rect')
+                    .attr('width', '16').attr('height', 16)
+                .attr('fill', function(d) { return color(d.data.label); });
+                
+                //create the second column for each segment.
+                tr.append('td').text(function(d) { return d.data.label; });
+                
+                //create the second column for each segment.
+                tr.append('td').attr('class', 'legendData')
+                    .text(function(d) { return d.data.count; });
+
+            });
+            
+            function type(d) {
+                d.count = +d.count || 0;
+                d.count1 = +d.count1 || 0;
+                return d;
+            }
+              
+            function arcTween(a) {
+                var i = d3.interpolate(this._current, a);
+                this._current = i(0);
+                return function(t) {
+                    return arc(i(t));    
+                };
+            };
+//            
+//            function textTween(a) {
+//                var i = d3.interpolate(this._current, a);
+//                this._current = i(0);
+//                return function(t) {
+//                    text(i(t));
+//                }
+//            
+         };
+        donutChart('500', '500');
+    </script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+body {
+  font: 12px sans-serif;
+}    
+ #chart {                                                                                                         
+     width: 100%;
+     float: left;
+}  
+#chart > svg {
+    margin-left: 40%;
+    margin-top: 3%;
+}
+#chart h3 {
+    padding: 10px 0;
+    background-color: lightgray;
+    text-align: center;
+}                                                            
+#chart > table {
+    font-size: 16px;
+    height: 100px;
+    margin-bottom: 400px;
+    margin-left: 40px;
+}
+
+path:hover {
+    opacity: 0.8;   
+}
+form {
+    margin-right: 32%;
+    float: right;
+}
+.legend tr{    border-bottom:1px solid grey; }
+.legend tr:first-child{    border-top:1px solid grey; }
+.legend{
+    margin-bottom:76px;
+    display:inline-block;
+    border-collapse: collapse;
+    border-spacing: 0px;
+}
+.legend td{
+    padding:4px 5px;
+    vertical-align:bottom;
+}
+.legendData{
+    align:right;
+    width:50px;
+}
